@@ -1,10 +1,14 @@
+import cudf as cudf
 import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-from typing import Optional
-from sklearn import tree, metrics
+from cuml.ensemble import RandomForestClassifier as cusRandomForestClassifier
+from cuml.metrics import accuracy_score as cu_accuracy_score
+from cuml.preprocessing.model_selection import train_test_split as cu_train_test_split
+
+from sklearn import metrics
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier
@@ -16,8 +20,8 @@ exibirMatrizes = False
 # Base do código obtida do ChatGPT
 
 # Datasets
-data_treino = 'treino.csv'
-data_teste = 'teste.csv'
+data_treino = 'data/treino.csv'
+data_teste = 'data/teste.csv'
 
 # Carrega os dados em um DataFrame
 dataTreino = pd.read_csv(data_treino)
