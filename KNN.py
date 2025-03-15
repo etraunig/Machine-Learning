@@ -1,4 +1,5 @@
 import numpy as np
+import collections
 
 def euclidean_distance(x1, x2):
     return np.sqrt(np.sum((x1 - x2) ** 2))
@@ -27,4 +28,6 @@ class KNN:
         #get the labels of the k nearest samples
         k_nearest_labels = [self.y_train[i] for i in k_indices]
 
-        #TODO: return the most common class label
+        #return the most common class label
+        most_common = collections.Counter(k_nearest_labels).most_common(1)
+        return most_common
