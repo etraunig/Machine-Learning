@@ -1,3 +1,5 @@
+# This code was made using copilot for formatting and lib searching
+
 import numpy as np
 import collections
 
