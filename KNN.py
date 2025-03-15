@@ -30,4 +30,4 @@ class KNN:
 
         #return the most common class label
         most_common = collections.Counter(k_nearest_labels).most_common(1)
-        return most_common
+        return most_common[0][0]
