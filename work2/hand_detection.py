@@ -1,13 +1,13 @@
-####################
-# setar essas variaveis de ambiente pra rodar na cpu
-#import os
-
-#os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-#os.environ["MEDIAPIPE_DISABLE_GPU"] = "true"
-####################
-
+import os
 import cv2
 import mediapipe as mp
+
+####################
+use_cpu = True # Disable GPU if needed
+if use_cpu:
+    os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+    os.environ["MEDIAPIPE_DISABLE_GPU"] = "true"
+####################
 
 # Inicializa desenhador e modelo
 mp_hands = mp.solutions.hands
@@ -18,7 +18,7 @@ cap = cv2.VideoCapture(0)
 window_name = "Deteccao de Mao com MediaPipe"
 
 with mp_hands.Hands(
-    max_num_hands=5,
+    max_num_hands=2,
     min_detection_confidence=0.7,
     min_tracking_confidence=0.5
 ) as hands:
