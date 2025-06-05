@@ -33,17 +33,20 @@ def calcular_angulo_2d(a, b, c):
 
 
 ####################
-use_cpu = True  # Desabilita GPU se necessário
+use_cpu = False  # Desabilita GPU se necessário
 if use_cpu:
     os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
     os.environ["MEDIAPIPE_DISABLE_GPU"] = "true"
 ####################
 
 # Caminho da imagem de entrada e saída
-input_image_path = "references/okay/okay_hand.jpg"        # Altere para o caminho da sua imagem
-output_image_path = "references/okay/okay_hand_annotation.jpg"
-output_yml_path = "references/okay/okay_hand_keypoint_coordinates.yml"
-output_angles_path = "references/okay/okay_hand_angles.yml"
+file_name = "mahoraga"
+base_path = "references/"
+input_image_path = base_path + "gestures/" + file_name + ".png"
+output_image_path = base_path + "annotations/" + file_name + ".jpg"
+output_yml_path = base_path + "keypoints/" + file_name + ".yml"
+output_angles_path = base_path + "angles/" + file_name + ".yml"
+
 # Inicializa desenhador e modelo
 mp_hands = mp.solutions.hands
 mp_drawing = mp.solutions.drawing_utils
