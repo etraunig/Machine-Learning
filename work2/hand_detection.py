@@ -19,7 +19,7 @@ window_name = "Deteccao de Mao com MediaPipe"
 
 with mp_hands.Hands(
     max_num_hands=2,
-    min_detection_confidence=0.7,
+    min_detection_confidence=0.4,
     min_tracking_confidence=0.5
 ) as hands:
 
