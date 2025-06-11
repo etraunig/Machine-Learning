@@ -28,6 +28,20 @@ def carregar_angulos_yaml(caminho):
         data = yaml.safe_load(f)
     return data["hand_0"]
 
+def carregar_angulos_de_diretorio(diretorio):
+    angulos_por_arquivo = {}
+    for nome_arquivo in os.listdir(diretorio):
+        if nome_arquivo.endswith(".yml"):
+            caminho = os.path.join(diretorio, nome_arquivo)
+            with open(caminho, "r") as f:
+                dados = yaml.safe_load(f)
+                nome_base = os.path.splitext(nome_arquivo)[0]
+                angulos_por_arquivo[nome_base] = {
+                    "hand_0": dados.get("hand_0", {}),
+                    "hand_1": dados.get("hand_1", {})
+                }
+    return angulos_por_arquivo
+
 def calcular_angulo_2d(a, b, c):
     ab = (a[0] - b[0], a[1] - b[1])
     cb = (c[0] - b[0], c[1] - b[1])
@@ -52,7 +66,7 @@ def calcular_angulos_frame(landmarks):
             angulos[f"{a_idx}-{b_idx}-{c_idx}"] = angulo
     return angulos
 
-def comparar_angulos(ang_atual, ang_salvo, threshold=3.0):
+def comparar_angulos(ang_atual, ang_salvo, threshold=4.0):
     valores_comparados = []
     for chave, angulo_salvo in ang_salvo.items():
         if chave in ang_atual and isinstance(angulo_salvo, (int, float)):
@@ -90,8 +104,8 @@ mp_hands = mp.solutions.hands
 mp_drawing = mp.solutions.drawing_utils
 
 # Carrega os ângulos do gesto salvo
-arquivo_angulo = "references/angles/nue.yml"
-angulos_salvos = carregar_angulos_yaml(arquivo_angulo)
+diretorio_angulos = "references/angles"
+angulos_salvos_dict = carregar_angulos_de_diretorio(diretorio_angulos)
 
 # Abre webcam
 cap = cv2.VideoCapture(0)
@@ -130,9 +144,11 @@ with mp_hands.Hands(
                 pontos = [(lm.x, lm.y) for lm in hand_landmarks.landmark]
                 angulos_atuais = calcular_angulos_frame(pontos)
 
-                if comparar_angulos(angulos_atuais, angulos_salvos):
-                    cv2.putText(frame, "GESTO DETECTADO", (10, 50),
-                                cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 255, 0), 3)
+                for nome_gesto, gesto_data in angulos_salvos_dict.items():
+                    if comparar_angulos(angulos_atuais, gesto_data["hand_0"]):
+                        cv2.putText(frame, f"GESTO: {nome_gesto.upper()}", (10, 50),
+                        cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 255, 0), 3)
+                        break  # Interrompe no primeiro gesto detectado
 
         cv2.imshow(window_name, frame)
         key = cv2.waitKey(1) & 0xFF
