@@ -18,4 +18,13 @@ Known shikigami:
 - Create a venv: `python3 -m venv .`
 - Activate the venv: `source bin/activate`
 - Install the requirements with `pip install -r requirements.txt`
-- Run the program with `python app.py`
+- Run the program with `python hand_detection.py`
+
+Detected shikigami:
+- [x] Divine Dogs
+- [x] Nue
+- [ ] Great Serpent
+- [ ] Toad
+- [ ] Max Elephant
+- [ ] Rabbit Escape
+- [ ] Mahoraga
