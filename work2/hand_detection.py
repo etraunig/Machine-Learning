@@ -14,11 +14,11 @@ if use_cpu:
 
 # Define os mesmos tripletos do arquivo detect_from_image.py
 TRIPLETOS = [
-    (0, 1, 2), (1, 2, 3),         # polegar
-    (5, 6, 7), (6, 7, 8),         # indicador
-    (9, 10, 11), (10, 11, 12),    # médio
-    (13, 14, 15), (14, 15, 16),   # anelar
-    (17, 18, 19), (18, 19, 20)    # mínimo
+    (0, 1, 2), (1, 2, 3), (2, 3, 4),     # Polegar completo até a ponta
+    (0, 5, 6), (5, 6, 7), (6, 7, 8),     # Indicador completo até a ponta
+    (0, 9, 10), (9, 10, 11), (10, 11, 12), # Médio completo até a ponta
+    (0, 13, 14), (13, 14, 15), (14, 15, 16), # Anelar completo até a ponta
+    (0, 17, 18), (17, 18, 19), (18, 19, 20)  # Mínimo completo até a ponta
 ]
 
 # === Funções de gesto ===
@@ -52,7 +52,7 @@ def calcular_angulos_frame(landmarks):
             angulos[f"{a_idx}-{b_idx}-{c_idx}"] = angulo
     return angulos
 
-def comparar_angulos(ang_atual, ang_salvo, threshold=5.0):
+def comparar_angulos(ang_atual, ang_salvo, threshold=3.0):
     valores_comparados = []
     for chave, angulo_salvo in ang_salvo.items():
         if chave in ang_atual and isinstance(angulo_salvo, (int, float)):
@@ -64,13 +64,33 @@ def comparar_angulos(ang_atual, ang_salvo, threshold=5.0):
     rmse = np.sqrt(np.mean(valores_comparados))
     return rmse < threshold
 
+
+def salvar_imagem_e_gesto(frame, angulos, base_pasta="references", nome="gesto_salvo"):
+    pasta_img = os.path.join(base_pasta, "gestures")
+    pasta_angles = os.path.join(base_pasta, "angles")
+    os.makedirs(pasta_img, exist_ok=True)
+    os.makedirs(pasta_angles, exist_ok=True)
+
+    # Salva imagem
+    caminho_img = os.path.join(pasta_img, f"{nome}.jpg")
+    cv2.imwrite(caminho_img, frame)
+
+    # Salva ângulos YAML
+    caminho_yml = os.path.join(pasta_angles, f"{nome}.yml")
+    with open(caminho_yml, "w") as f:
+        yaml.dump({"hand_0": angulos}, f, sort_keys=False)
+
+    print(f"Imagem salva em: {caminho_img}")
+    print(f"Ângulos salvos em: {caminho_yml}")
+
+
 # === Inicialização do MediaPipe ===
 
 mp_hands = mp.solutions.hands
 mp_drawing = mp.solutions.drawing_utils
 
 # Carrega os ângulos do gesto salvo
-arquivo_angulo = "references/angles/mahoraga.yml"
+arquivo_angulo = "references/angles/nue.yml"
 angulos_salvos = carregar_angulos_yaml(arquivo_angulo)
 
 # Abre webcam
@@ -90,8 +110,11 @@ with mp_hands.Hands(
             break
 
         frame = cv2.flip(frame, 1)
+        frame_original = frame.copy()
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         results = hands.process(rgb_frame)
+
+        angulos_atuais = None
 
         if results.multi_hand_landmarks:
             for hand_landmarks in results.multi_hand_landmarks:
@@ -112,8 +135,12 @@ with mp_hands.Hands(
                                 cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 255, 0), 3)
 
         cv2.imshow(window_name, frame)
-        if cv2.waitKey(1) & 0xFF in [27, ord('q')]:
+        key = cv2.waitKey(1) & 0xFF
+
+        if key in [27, ord('q')]:  # ESC ou q
             break
+        elif key == 32 and angulos_atuais is not None:  # Barra de espaço
+            salvar_imagem_e_gesto(frame_original, angulos_atuais, nome="nue")
 
 cap.release()
 cv2.destroyAllWindows()
