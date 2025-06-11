@@ -3,15 +3,8 @@ import yaml
 import cv2
 import math
 import mediapipe as mp
-
-# Define tripletos de keypoints para cálculo de ângulos
-TRIPLETOS = [
-    (0, 1, 2), (1, 2, 3), (2, 3, 4),     # Polegar completo até a ponta
-    (0, 5, 6), (5, 6, 7), (6, 7, 8),     # Indicador completo até a ponta
-    (0, 9, 10), (9, 10, 11), (10, 11, 12), # Médio completo até a ponta
-    (0, 13, 14), (13, 14, 15), (14, 15, 16), # Anelar completo até a ponta
-    (0, 17, 18), (17, 18, 19), (18, 19, 20)  # Mínimo completo até a ponta
-]
+from hand_detection import TRIPLETOS
+from hand_detection import calcular_angulo_2d
 
 # Função para calcular ângulo (em graus) entre 3 keypoints (em 2D)
 def calcular_angulo_2d(a, b, c):
@@ -31,7 +24,6 @@ def calcular_angulo_2d(a, b, c):
     return math.degrees(angulo_rad)
 
 
-
 ####################
 use_cpu = False  # Desabilita GPU se necessário
 if use_cpu:
@@ -40,12 +32,12 @@ if use_cpu:
 ####################
 
 # Caminho da imagem de entrada e saída
-file_name = "nue"
+file_name = "divine_dogs"
 base_path = "references/"
-input_image_path = base_path + "gestures/" + file_name + ".jpg"
-output_image_path = base_path + "annotations/" + file_name + "1.jpg"
-output_yml_path = base_path + "keypoints/" + file_name + "1.yml"
-output_angles_path = base_path + "angles/" + file_name + "1.yml"
+input_image_path = base_path + "gestures/" + file_name + ".png"
+output_image_path = base_path + "annotations/" + file_name + ".jpg"
+output_yml_path = base_path + "keypoints/" + file_name + ".yml"
+output_angles_path = base_path + "angles/" + file_name + ".yml"
 
 # Inicializa desenhador e modelo
 mp_hands = mp.solutions.hands

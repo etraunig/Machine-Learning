@@ -14,11 +14,11 @@ if use_cpu:
 
 # Define os mesmos tripletos do arquivo detect_from_image.py
 TRIPLETOS = [
-    (0, 1, 2), (1, 2, 3), (2, 3, 4),     # Polegar completo até a ponta
-    (0, 5, 6), (5, 6, 7), (6, 7, 8),     # Indicador completo até a ponta
-    (0, 9, 10), (9, 10, 11), (10, 11, 12), # Médio completo até a ponta
-    (0, 13, 14), (13, 14, 15), (14, 15, 16), # Anelar completo até a ponta
-    (0, 17, 18), (17, 18, 19), (18, 19, 20)  # Mínimo completo até a ponta
+    (1, 2, 3), (2, 3, 4),     # Polegar completo até a ponta
+    (5, 6, 7), (6, 7, 8),     # Indicador completo até a ponta
+    (9, 10, 11), (10, 11, 12), # Médio completo até a ponta
+    (13, 14, 15), (14, 15, 16), # Anelar completo até a ponta
+    (17, 18, 19), (18, 19, 20)  # Mínimo completo até a ponta
 ]
 
 # === Funções de gesto ===
@@ -66,7 +66,7 @@ def calcular_angulos_frame(landmarks):
             angulos[f"{a_idx}-{b_idx}-{c_idx}"] = angulo
     return angulos
 
-def comparar_angulos(ang_atual, ang_salvo, threshold=4.0):
+def comparar_angulos(ang_atual, ang_salvo, threshold=3.0):
     valores_comparados = []
     for chave, angulo_salvo in ang_salvo.items():
         if chave in ang_atual and isinstance(angulo_salvo, (int, float)):
@@ -98,66 +98,68 @@ def salvar_imagem_e_gesto(frame, angulos, base_pasta="references", nome="gesto_s
     print(f"Ângulos salvos em: {caminho_yml}")
 
 
-# === Inicialização do MediaPipe ===
+if __name__ == "__main__":
 
-mp_hands = mp.solutions.hands
-mp_drawing = mp.solutions.drawing_utils
+    # === Inicialização do MediaPipe ===
 
-# Carrega os ângulos do gesto salvo
-diretorio_angulos = "references/angles"
-angulos_salvos_dict = carregar_angulos_de_diretorio(diretorio_angulos)
+    mp_hands = mp.solutions.hands
+    mp_drawing = mp.solutions.drawing_utils
 
-# Abre webcam
-cap = cv2.VideoCapture(0)
-window_name = "Deteccao de Mao com MediaPipe"
+    # Carrega os ângulos do gesto salvo
+    diretorio_angulos = "references/angles"
+    angulos_salvos_dict = carregar_angulos_de_diretorio(diretorio_angulos)
 
-with mp_hands.Hands(
-    max_num_hands=2,
-    min_detection_confidence=0.6,
-    min_tracking_confidence=0.6
-) as hands:
+    # Abre webcam
+    cap = cv2.VideoCapture(0)
+    window_name = "Deteccao de Mao com MediaPipe"
 
-    while cap.isOpened():
-        success, frame = cap.read()
-        if not success:
-            print("Erro ao acessar a câmera.")
-            break
+    with mp_hands.Hands(
+        max_num_hands=2,
+        min_detection_confidence=0.6,
+        min_tracking_confidence=0.6
+    ) as hands:
 
-        frame = cv2.flip(frame, 1)
-        frame_original = frame.copy()
-        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        results = hands.process(rgb_frame)
+        while cap.isOpened():
+            success, frame = cap.read()
+            if not success:
+                print("Erro ao acessar a câmera.")
+                break
 
-        angulos_atuais = None
+            frame = cv2.flip(frame, 1)
+            frame_original = frame.copy()
+            rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            results = hands.process(rgb_frame)
 
-        if results.multi_hand_landmarks:
-            for hand_landmarks in results.multi_hand_landmarks:
-                mp_drawing.draw_landmarks(
-                    frame,
-                    hand_landmarks,
-                    mp_hands.HAND_CONNECTIONS,
-                    mp_drawing.DrawingSpec(color=(0, 255, 0), thickness=2, circle_radius=4),
-                    mp_drawing.DrawingSpec(color=(255, 0, 0), thickness=2)
-                )
+            angulos_atuais = None
 
-                # Extrair pontos normalizados
-                pontos = [(lm.x, lm.y) for lm in hand_landmarks.landmark]
-                angulos_atuais = calcular_angulos_frame(pontos)
+            if results.multi_hand_landmarks:
+                for hand_landmarks in results.multi_hand_landmarks:
+                    mp_drawing.draw_landmarks(
+                        frame,
+                        hand_landmarks,
+                        mp_hands.HAND_CONNECTIONS,
+                        mp_drawing.DrawingSpec(color=(0, 255, 0), thickness=2, circle_radius=4),
+                        mp_drawing.DrawingSpec(color=(255, 0, 0), thickness=2)
+                    )
 
-                for nome_gesto, gesto_data in angulos_salvos_dict.items():
-                    if comparar_angulos(angulos_atuais, gesto_data["hand_0"]):
-                        cv2.putText(frame, f"GESTO: {nome_gesto.upper()}", (10, 50),
-                        cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 255, 0), 3)
-                        break  # Interrompe no primeiro gesto detectado
+                    # Extrair pontos normalizados
+                    pontos = [(lm.x, lm.y) for lm in hand_landmarks.landmark]
+                    angulos_atuais = calcular_angulos_frame(pontos)
 
-        cv2.imshow(window_name, frame)
-        key = cv2.waitKey(1) & 0xFF
+                    for nome_gesto, gesto_data in angulos_salvos_dict.items():
+                        if comparar_angulos(angulos_atuais, gesto_data["hand_0"]):
+                            cv2.putText(frame, f"GESTO: {nome_gesto.upper()}", (10, 50),
+                            cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 255, 0), 3)
+                            break  # Interrompe no primeiro gesto detectado
 
-        if key in [27, ord('q')]:  # ESC ou q
-            break
-        elif key == 32 and angulos_atuais is not None:  # Barra de espaço
-            salvar_imagem_e_gesto(frame_original, angulos_atuais, nome="nue")
+            cv2.imshow(window_name, frame)
+            key = cv2.waitKey(1) & 0xFF
 
-cap.release()
-cv2.destroyAllWindows()
+            if key in [27, ord('q')]:  # ESC ou q
+                break
+            elif key == 32 and angulos_atuais is not None:  # Barra de espaço
+                salvar_imagem_e_gesto(frame_original, angulos_atuais, nome="nue")
+
+    cap.release()
+    cv2.destroyAllWindows()
 
