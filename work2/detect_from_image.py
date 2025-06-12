@@ -69,25 +69,18 @@ with mp_hands.Hands(
     keypoints_data = {}
     angles_data = {}
 
-    if results.multi_hand_landmarks:
-        for hand_idx, hand_landmarks in enumerate(results.multi_hand_landmarks): # itera para cada mao detectada
-            hand_name = f"hand_{hand_idx}"
-            keypoints = []
+    if results.multi_hand_landmarks and results.multi_handedness:
+        for hand_landmarks, handedness in zip(results.multi_hand_landmarks, results.multi_handedness):
+            label = handedness.classification[0].label  # 'Right' ou 'Left'
+            hand_name = label  # <- usa como chave
 
-            for idx, lm in enumerate(hand_landmarks.landmark): # itera por cada keypoint detectado
-                x = lm.x
-                y = lm.y
-                #z = lm.z
-                keypoints.append({
-                    "keypoint": idx,
-                    "x": x,
-                    "y": y
-                    #"z": z
-                })
+            keypoints = []
+            for idx, lm in enumerate(hand_landmarks.landmark):
+                keypoints.append({"keypoint": idx, "x": lm.x, "y": lm.y})
 
             keypoints_data[hand_name] = keypoints
 
-            # Desenha os keypoints na imagem original
+            # Desenha os keypoints
             mp_drawing.draw_landmarks(
                 image,
                 hand_landmarks,
