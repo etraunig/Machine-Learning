@@ -1,4 +1,5 @@
 import os
+import sys
 import yaml
 import cv2
 import math
@@ -30,10 +31,15 @@ if use_cpu:
     os.environ["MEDIAPIPE_DISABLE_GPU"] = "true"
 ####################
 
+if len(sys.argv) < 2:
+    print("Uso: python detect_from_image.py <arquivo>")
+    print("Tenha certeza de que o arquivo existe em references/gestures/")
+    sys.exit(1)
+
 # Caminho da imagem de entrada e saída
-file_name = "toad"
+file_name = os.path.splitext(sys.argv[1])[0]  # Remove a extensão do arquivo
 base_path = "references/"
-input_image_path = base_path + "gestures/" + file_name + ".png"
+input_image_path = base_path + "gestures/" + sys.argv[1]
 output_image_path = base_path + "annotations/" + file_name + ".jpg"
 output_yml_path = base_path + "keypoints/" + file_name + ".yml"
 output_angles_path = base_path + "angles/" + file_name + ".yml"
