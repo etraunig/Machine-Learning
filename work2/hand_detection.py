@@ -4,6 +4,11 @@ import mediapipe as mp
 import numpy as np
 import yaml
 import math
+import time
+
+contagem_em_andamento = False
+tempo_inicio = 0
+tempo_espera = 5 # segundos
 
 ####################
 use_cpu = True
@@ -43,6 +48,8 @@ def carregar_angulos_de_diretorio(diretorio):
                 angulos_por_arquivo[nome_base]["num_hands"] = sum(
                     1 for k in ["hand_0", "hand_1"] if dados.get(k)
                 )
+    for arquivo in angulos_por_arquivo:
+        print(f"{arquivo} carregado.")
     return angulos_por_arquivo
 
 def calcular_angulo_2d(a, b, c):
@@ -187,14 +194,29 @@ if __name__ == "__main__":
                         cv2.putText(frame, f"GESTO: {nome_gesto.upper()}", (10, 50),
                             cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 255, 0), 3)
                         break
+                
+                if contagem_em_andamento:
+                    tempo_decorrido = time.time() - tempo_inicio
+                    tempo_restante = max(0, int(tempo_espera - tempo_decorrido))
+                    
+                    # Mostra o countdown na tela
+                    cv2.putText(frame, f"{tempo_restante}s", (50, 100),
+                                cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 4)
+                    
+                    if tempo_decorrido >= tempo_espera:
+                        contagem_em_andamento = False
+                        tempo_inicio = 0
+                        salvar_imagem_e_gesto(frame_original, angulos_atuais, nome="novo")
+                        print("Gesto salvo com sucesso!")
 
             cv2.imshow(window_name, frame)
             key = cv2.waitKey(1) & 0xFF
 
             if key in [27, ord('q')]:  # ESC ou q
                 break
-            elif key == 32 and angulos_atuais is not None:  # Barra de espaço
-                salvar_imagem_e_gesto(frame_original, angulos_atuais, nome="nue")
+            elif key == 32 and angulos_atuais is not None:  # Barra de espaço 
+                contagem_em_andamento = True
+                tempo_inicio = time.time()
 
     cap.release()
     cv2.destroyAllWindows()
