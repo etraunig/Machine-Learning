@@ -4,17 +4,13 @@ Group: Bianca Zuchinali, Eduardo Traunig, Erick Machado, Ingrid Carolina, Thiago
 A Técnica das Dez Sombras é uma poderosa técnica hereditária do Clã Zenin no anime e mangá Jujutsu Kaisen. Ela é usada principalmente por Megumi Fushiguro, um dos personagens principais. Essa técnica utiliza sinais com as mãos para invocar diferentes shikigami a partir da sombra do usuário. Cada shikigami possui habilidades únicas e funções específicas em combate.
 
 Shikigami detectados:
-
-Divine Dogs – Lobo
-
-Nue – Pássaro
-
-Toad – Rã (o mediapipe não consegue estimar direito os pontos referentes as pontas dos dedos nesse gesto, dificultando a deteccção deste gesto)
+- Divine Dogs – Lobo
+- Nue – Pássaro
+- Toad – Rã (detecção mais díficil que os outros)
 
 Expansões de Domínio:
-Idle Death Gamble -> Kinji Hakari
-
-Unlimited Void -> Satoru Gojo
+- Idle Death Gamble -> Kinji Hakari
+- Unlimited Void -> Satoru Gojo
 
 # Como compilar e rodar:
 
