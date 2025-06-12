@@ -70,7 +70,7 @@ def calcular_angulos_frame(landmarks):
             angulos[f"{a_idx}-{b_idx}-{c_idx}"] = angulo
     return angulos
 
-def comparar_angulos(ang_atual, ang_salvo, threshold=4.0):
+def comparar_angulos(ang_atual, ang_salvo, threshold=3.5):
     valores_comparados = []
     for chave, angulo_salvo in ang_salvo.items():
         if chave in ang_atual and isinstance(angulo_salvo, (int, float)):
@@ -131,10 +131,6 @@ if __name__ == "__main__":
             angulos_atuais = None
 
             if results.multi_hand_landmarks and results.multi_handedness:  
-
-                # num_maos_detectadas = len(results.multi_hand_landmarks)
-                # angulos_atuais_por_mao = []
-
                 for hand_landmarks, handedness in zip(results.multi_hand_landmarks, results.multi_handedness):
                     # Obtém se é 'Right' ou 'Left'
                     label = handedness.classification[0].label
@@ -156,8 +152,7 @@ if __name__ == "__main__":
                     # Extrair pontos normalizados
                     pontos = [(lm.x, lm.y) for lm in hand_landmarks.landmark]
                     angulos_atuais = calcular_angulos_frame(pontos)
-                    # angulos_atuais_por_mao.append(angulos_atuais)
-
+                    
                 # Compara com os gestos salvos
                 for nome_gesto, dados_angulo in angulos_salvos_dict.items():
                     # Verifica se tem mãos suficientes para o gesto
