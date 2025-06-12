@@ -1,30 +1,26 @@
-# Ten Shadows Technique Detector
+# Detector da Tecnica das Dez Sombras
 Group: Bianca Zuchinali, Eduardo Traunig, Erick Machado, Ingrid Carolina, Thiago Zilberknop
 
-The **Ten Shadows Technique** is a powerful inherited technique from the *Zenin Clan* in the anime and manga **Jujutsu Kaisen**. It's primarily used by *Megumi Fushiguro*, one of the main characters. This technique uses **hand signs** to summon different shikigami from the user's shadow. Each shikigami has unique abilities and combat functions.
+A Técnica das Dez Sombras é uma poderosa técnica hereditária do Clã Zenin no anime e mangá Jujutsu Kaisen. Ela é usada principalmente por Megumi Fushiguro, um dos personagens principais. Essa técnica utiliza sinais com as mãos para invocar diferentes shikigami a partir da sombra do usuário. Cada shikigami possui habilidades únicas e funções específicas em combate.
 
-Known shikigami:
-1. **Divine Dogs** – Wolf
-2. **Nue** - Bird
-3. **Great Serpent** - Snake
-4. **Toad** - Frog
-5. **Max Elephant** - Elephant
-6. **Rabbit Escape** - Rabbit
-7. **Mahoraga** - with this treasure I summon...
+Shikigami detectados:
 
-# How to compile and run:
+Cães Divinos – Lobo
 
-- Install Python
-- Create a venv: `python3 -m venv .`
-- Activate the venv: `source bin/activate`
-- Install the requirements with `pip install -r requirements.txt`
-- Run the program with `python hand_detection.py`
+Nue – Pássaro
 
-Detected shikigami:
-- [x] Divine Dogs
-- [x] Nue
-- [ ] Great Serpent
-- [x] Toad
-- [ ] Max Elephant
-- [ ] Rabbit Escape
-- [ ] Mahoraga
+Sapo – Rã (o mediapipe não consegue estimar direito os pontos referentes as pontas dos dedos nesse gesto, dificultando a deteccção deste gesto)
+
+# Como compilar e rodar:
+
+- Instale Python
+- Crie a venv: `python3 -m venv .`
+- Ative a venv: `source bin/activate`
+- Instale os requisitos com `pip install -r requirements.txt`
+- Rode o programa com `python hand_detection.py`
+
+# Como registrar novas poses:
+- Coloque a imagem da mao no folder references/gestures com o nome do gesto como nome do arquivo
+- Rodar o script detect_from_image.py passando como argumento o nome do gesto (sem a extensao do arquivo)
+- Após rodar o script, ele irá gerar os dados necessários para que a detecção de poses funcione. Rode o arquivo hand_detection.py e veja o gesto ser detectado!
+
