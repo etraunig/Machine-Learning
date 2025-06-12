@@ -4,7 +4,6 @@ import cv2
 import math
 import mediapipe as mp
 from hand_detection import TRIPLETOS
-from hand_detection import calcular_angulo_2d
 
 # Função para calcular ângulo (em graus) entre 3 keypoints (em 2D)
 def calcular_angulo_2d(a, b, c):

@@ -12,7 +12,6 @@ if use_cpu:
     os.environ["MEDIAPIPE_DISABLE_GPU"] = "true"
 ####################
 
-# Define os mesmos tripletos do arquivo detect_from_image.py
 TRIPLETOS = [
     (1, 2, 3), (2, 3, 4),     # Polegar completo até a ponta
     (5, 6, 7), (6, 7, 8),     # Indicador completo até a ponta
@@ -40,6 +39,10 @@ def carregar_angulos_de_diretorio(diretorio):
                     "hand_0": dados.get("hand_0", {}),
                     "hand_1": dados.get("hand_1", {})
                 }
+                # número de mãos presentes no gesto
+                angulos_por_arquivo[nome_base]["num_hands"] = sum(
+                    1 for k in ["hand_0", "hand_1"] if dados.get(k)
+                )
     return angulos_por_arquivo
 
 def calcular_angulo_2d(a, b, c):
@@ -133,6 +136,9 @@ if __name__ == "__main__":
             angulos_atuais = None
 
             if results.multi_hand_landmarks:
+                num_maos_detectadas = len(results.multi_hand_landmarks)
+                angulos_atuais_por_mao = []
+
                 for hand_landmarks in results.multi_hand_landmarks:
                     mp_drawing.draw_landmarks(
                         frame,
@@ -145,12 +151,28 @@ if __name__ == "__main__":
                     # Extrair pontos normalizados
                     pontos = [(lm.x, lm.y) for lm in hand_landmarks.landmark]
                     angulos_atuais = calcular_angulos_frame(pontos)
+                    angulos_atuais_por_mao.append(angulos_atuais)
 
-                    for nome_gesto, gesto_data in angulos_salvos_dict.items():
-                        if comparar_angulos(angulos_atuais, gesto_data["hand_0"]):
-                            cv2.putText(frame, f"GESTO: {nome_gesto.upper()}", (10, 50),
+                # Compara com os gestos salvos
+                for nome_gesto, gesto_data in angulos_salvos_dict.items():
+                    num_maos_necessarias = gesto_data.get("num_hands", 1)
+
+                    if num_maos_detectadas != num_maos_necessarias:
+                        continue 
+
+                    correspondencia = True
+                    for idx in range(num_maos_necessarias):
+                        hand_key = f"hand_{idx}"
+                        ang_salvos = gesto_data.get(hand_key, {})
+                        ang_atuais = angulos_atuais_por_mao[idx]
+                        if not comparar_angulos(ang_atuais, ang_salvos):
+                            correspondencia = False
+                            break
+
+                    if correspondencia:
+                        cv2.putText(frame, f"GESTO: {nome_gesto.upper()}", (10, 50),
                             cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 255, 0), 3)
-                            break  # Interrompe no primeiro gesto detectado
+                        break
 
             cv2.imshow(window_name, frame)
             key = cv2.waitKey(1) & 0xFF
