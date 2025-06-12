@@ -24,7 +24,7 @@ Detected shikigami:
 - [x] Divine Dogs
 - [x] Nue
 - [ ] Great Serpent
-- [ ] Toad
+- [x] Toad
 - [ ] Max Elephant
 - [ ] Rabbit Escape
 - [ ] Mahoraga

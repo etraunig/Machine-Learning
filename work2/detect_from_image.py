@@ -31,7 +31,7 @@ if use_cpu:
 ####################
 
 # Caminho da imagem de entrada e saída
-file_name = "divine_dogs"
+file_name = "toad"
 base_path = "references/"
 input_image_path = base_path + "gestures/" + file_name + ".png"
 output_image_path = base_path + "annotations/" + file_name + ".jpg"
