@@ -135,11 +135,16 @@ if __name__ == "__main__":
 
             angulos_atuais = None
 
-            if results.multi_hand_landmarks:
+            if results.multi_hand_landmarks and results.multi_handedness:  
+
                 num_maos_detectadas = len(results.multi_hand_landmarks)
                 angulos_atuais_por_mao = []
 
-                for hand_landmarks in results.multi_hand_landmarks:
+                for hand_landmarks, handedness in zip(results.multi_hand_landmarks, results.multi_handedness):
+                    # Obtém se é 'Right' ou 'Left'
+                    label = handedness.classification[0].label
+                    
+                    # Desenha landmarks da mão
                     mp_drawing.draw_landmarks(
                         frame,
                         hand_landmarks,
@@ -147,6 +152,15 @@ if __name__ == "__main__":
                         mp_drawing.DrawingSpec(color=(0, 255, 0), thickness=2, circle_radius=4),
                         mp_drawing.DrawingSpec(color=(255, 0, 0), thickness=2)
                     )
+
+                    # Obtém posição (x, y) do pulso (landmark 0) para desenhar o texto
+                    wrist = hand_landmarks.landmark[0]
+                    h, w, _ = frame.shape
+                    cx, cy = int(wrist.x * w), int(wrist.y * h)
+
+                    # Escreve 'Right' ou 'Left' próximo ao pulso
+                    cv2.putText(frame, label, (cx, cy - 10),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 255), 2)
 
                     # Extrair pontos normalizados
                     pontos = [(lm.x, lm.y) for lm in hand_landmarks.landmark]
